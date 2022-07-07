@@ -31,7 +31,7 @@ public class PricingServiceApplicationTests {
 		String baseURL = "http://localhost:" + port + "/prices/";
 		Price price = restTemplate.getForObject(baseURL + id, Price.class);
 		assertNotNull(price);
-		assertEquals(price.getPrice(), new BigDecimal(3563));
-		assertEquals(price.getCurrency(), "EUR");
+		assertEquals(price.getPrice(), new BigDecimal(10000));
+		assertEquals(price.getCurrency(), "CNY");
 	}
 }
