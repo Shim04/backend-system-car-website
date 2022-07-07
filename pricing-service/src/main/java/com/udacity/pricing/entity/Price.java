@@ -8,12 +8,11 @@ import javax.persistence.*;
  */
 @Entity
 public class Price {
-
-    private String currency;
-    private BigDecimal price;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long vehicleId;
+    private String currency;
+    private BigDecimal price;
 
     public Price() {
     }
