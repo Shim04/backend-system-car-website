@@ -2,6 +2,7 @@ package com.udacity.vehicles.service;
 
 import com.udacity.vehicles.client.maps.MapsClient;
 import com.udacity.vehicles.client.prices.PriceClient;
+import com.udacity.vehicles.domain.Location;
 import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.domain.car.CarRepository;
 import java.util.List;
@@ -18,13 +19,14 @@ import org.springframework.stereotype.Service;
 public class CarService {
 
     private final CarRepository repository;
-    private final PriceClient priceClient;
     private final MapsClient mapsClient;
+    private final PriceClient priceClient;
 
-    public CarService(CarRepository repository, PriceClient priceClient, MapsClient mapsClient) {
+
+    public CarService(CarRepository repository, MapsClient mapsClient, PriceClient priceClient) {
         this.repository = repository;
-        this.priceClient = priceClient;
         this.mapsClient = mapsClient;
+        this.priceClient = priceClient;
     }
 
     /**
@@ -44,12 +46,13 @@ public class CarService {
         Optional<Car> optionalCar = repository.findById(id);
         if (optionalCar.isPresent()) {
             Car car = optionalCar.get();
-            car.setPrice(priceClient.getPrice(id));
-            car.setLocation(mapsClient.getAddress(car.getLocation()));
-
+            String price = priceClient.getPrice(id);
+            car.setPrice(price);
+            Location location = mapsClient.getAddress(car.getLocation());
+            car.setLocation(location);
             return car;
         } else {
-            throw new CarNotFoundException("Car Not Found");
+            throw new CarNotFoundException();
         }
     }
 
@@ -82,10 +85,10 @@ public class CarService {
     public void delete(Long id) {
         Optional<Car> optionalCar = repository.findById(id);
         if (optionalCar.isPresent()) {
-            repository.delete(optionalCar.get());
+            Car car = optionalCar.get();
+            repository.delete(car);
         } else {
-            throw new CarNotFoundException("Car Not Found");
+            throw new CarNotFoundException();
         }
-
     }
 }

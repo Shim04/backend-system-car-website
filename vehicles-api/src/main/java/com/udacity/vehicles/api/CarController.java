@@ -58,7 +58,8 @@ class CarController {
      */
     @GetMapping("/{id}")
     Resource<Car> get(@PathVariable Long id) {
-        return assembler.toResource(carService.findById(id));
+        Car car = carService.findById(id);
+        return assembler.toResource(car);
     }
 
     /**
@@ -69,7 +70,8 @@ class CarController {
      */
     @PostMapping
     ResponseEntity<?> post(@Valid @RequestBody Car car) throws URISyntaxException {
-        Resource<Car> resource = assembler.toResource(carService.save(car));
+        Car carSaved = carService.save(car);
+        Resource<Car> resource = assembler.toResource(carSaved);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
 
@@ -82,7 +84,8 @@ class CarController {
     @PutMapping("/{id}")
     ResponseEntity<?> put(@PathVariable Long id, @Valid @RequestBody Car car) {
         car.setId(id);
-        Resource<Car> resource = assembler.toResource(carService.save(car));
+        Car carSaved = carService.save(car);
+        Resource<Car> resource = assembler.toResource(carSaved);
         return ResponseEntity.ok(resource);
     }
 
