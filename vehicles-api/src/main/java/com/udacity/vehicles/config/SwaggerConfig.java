@@ -29,9 +29,9 @@ public class SwaggerConfig {
                 "Vehicle API",
                 "A REST API to maintain vehicle data and to provide a complete view of vehicle details including price and address.",
                 "1.0",
-                "http://www.udacity.com/tos",
+                "https://www.udacity.com/tos",
                 new Contact("Shimin Liang", "https://www.linkedin.com/in/shimin-liang-0b85b3145", "shiminli@usc.edu"),
-                "License of API", "http://www.udacity.com/license",
+                "License of API", "https://www.udacity.com/license",
                 Collections.emptyList());
     }
 
