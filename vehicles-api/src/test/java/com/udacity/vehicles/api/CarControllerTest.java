@@ -2,8 +2,9 @@ package com.udacity.vehicles.api;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.udacity.vehicles.client.maps.MapsClient;
@@ -86,37 +87,12 @@ public class CarControllerTest {
      */
     @Test
     public void listCars() throws Exception {
-        var expectedJson = "{\"_embedded\":{\"carList\":[{\n" +
-                "   \"condition\":\"USED\",\n" +
-                "   \"details\":{\n" +
-                "      \"body\":\"sedan\",\n" +
-                "      \"model\":\"Impala\",\n" +
-                "      \"manufacturer\":{\n" +
-                "         \"code\":101,\n" +
-                "         \"name\":\"Chevrolet\"\n" +
-                "      },\n" +
-                "      \"numberOfDoors\":4,\n" +
-                "      \"fuelType\":\"Gasoline\",\n" +
-                "      \"engine\":\"3.6L V6\",\n" +
-                "      \"mileage\":32280,\n" +
-                "      \"modelYear\":2018,\n" +
-                "      \"productionYear\":2018,\n" +
-                "      \"externalColor\":\"white\"\n" +
-                "   },\n" +
-                "   \"location\":{\n" +
-                "      \"lat\":40.73061,\n" +
-                "      \"lon\":-73.935242\n" +
-                "   }\n" +
-                "}]}}";
+        mvc.perform(get(new URI("/cars"))
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
 
-
-        mvc.perform(
-                        get(new URI("/cars"))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                                .accept(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk())
-                .andExpect(content().json(expectedJson));
-
+        verify(carService, times(1)).list();
     }
 
     /**
@@ -125,85 +101,26 @@ public class CarControllerTest {
      */
     @Test
     public void findCar() throws Exception {
-        var expectedJson = "{\n" +
-                "   \"condition\":\"USED\",\n" +
-                "   \"details\":{\n" +
-                "      \"body\":\"sedan\",\n" +
-                "      \"model\":\"Impala\",\n" +
-                "      \"manufacturer\":{\n" +
-                "         \"code\":101,\n" +
-                "         \"name\":\"Chevrolet\"\n" +
-                "      },\n" +
-                "      \"numberOfDoors\":4,\n" +
-                "      \"fuelType\":\"Gasoline\",\n" +
-                "      \"engine\":\"3.6L V6\",\n" +
-                "      \"mileage\":32280,\n" +
-                "      \"modelYear\":2018,\n" +
-                "      \"productionYear\":2018,\n" +
-                "      \"externalColor\":\"white\"\n" +
-                "   },\n" +
-                "   \"location\":{\n" +
-                "      \"lat\":40.73061,\n" +
-                "      \"lon\":-73.935242\n" +
-                "   }\n" +
-                "}";
+        mvc.perform(get(new URI("/cars/1"))
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
 
-
-        mvc.perform(
-                        get(new URI("/cars/1"))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                                .accept(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk())
-                .andExpect(content().json(expectedJson));
+        verify(carService, times(1)).findById(1L);
     }
 
     /**
-     * Tests the update operation for a single car by ID.
-     * @throws Exception if the read operation for a single car fails
+     * Tests the update operation of a single car by ID.
+     * @throws Exception if the update operation of a single car fails
      */
     @Test
     public void updateCar() throws Exception {
-        Car newCar = carService.findById(1L);
-        newCar.setId(1L);
-        Details details = newCar.getDetails();
-        details.setMileage(32792);
-        details.setExternalColor("gray");
-        newCar.setDetails(details);
-        newCar.setLocation(new Location(42.6519, -73.7761));
-        var expectedJsonNewCar = "{\n" +
-                "   \"condition\":\"USED\",\n" +
-                "   \"details\":{\n" +
-                "      \"body\":\"sedan\",\n" +
-                "      \"model\":\"Impala\",\n" +
-                "      \"manufacturer\":{\n" +
-                "         \"code\":101,\n" +
-                "         \"name\":\"Chevrolet\"\n" +
-                "      },\n" +
-                "      \"numberOfDoors\":4,\n" +
-                "      \"fuelType\":\"Gasoline\",\n" +
-                "      \"engine\":\"3.6L V6\",\n" +
-                "      \"mileage\":32792,\n" +
-                "      \"modelYear\":2018,\n" +
-                "      \"productionYear\":2018,\n" +
-                "      \"externalColor\":\"gray\"\n" +
-                "   },\n" +
-                "   \"location\":{\n" +
-                "      \"lat\":42.6519,\n" +
-                "      \"lon\":-73.7761\n" +
-                "   }\n" +
-                "}";
-
-
-        mvc.perform(
-                        put("/cars/1", 1L)
-//                                .param("id", "1L")
-//                                .param("car", json.write(newCar).getJson())
-                                .content(json.write(newCar).getJson())
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                                .accept(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk())
-                .andExpect(content().json(expectedJsonNewCar));
-
+        Car car = getCar();
+        mvc.perform(put(new URI("/cars/1"))
+                        .content(json.write(car).getJson())
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
     }
 
     /**
@@ -212,11 +129,12 @@ public class CarControllerTest {
      */
     @Test
     public void deleteCar() throws Exception {
-        mvc.perform(
-                        delete(new URI("/cars/1"))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                                .accept(MediaType.APPLICATION_JSON_UTF8))
+        mvc.perform(delete(new URI("/cars/1"))
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isNoContent());
+
+        verify(carService, times(1)).delete(1L);
     }
 
     /**
